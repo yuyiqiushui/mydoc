@@ -208,12 +208,15 @@
   }
   
   // 响应式数据
+  // 盒子数量
   const boxes = ref<CardBox[]>([])
+  // 点击的盒子
   const selectedBox = ref<number | null>(null)
   const gameLog = ref<GameLog[]>([])
   const mergeEffects = ref<MergeEffect[]>([])
   const isMerging = ref(false)
   const isDealing = ref(false)
+  // 已解锁盒子数量
   const unlockedBox = ref<number | null>(null)
   const mergingBoxIds = ref<number[]>([])
   const levelingUpBoxIds = ref<number[]>([])
@@ -221,14 +224,17 @@
   const effectIdCounter = ref(0)
   
   // 计算属性
+  // 已解锁盒子数量
   const unlockedBoxesCount = computed(() => {
     return boxes.value.filter(box => !box.locked).length
   })
   
+  // 已解锁盒子
   const hasUnlockedBox = computed(() => {
     return boxes.value.some(box => !box.locked)
   })
   
+  // 全局盒子内最大牌值
   const globalMaxCardValue = computed(() => {
     let max = 0
     boxes.value.forEach(box => {
@@ -240,6 +246,7 @@
     return max
   })
   
+  // 可以合并的盒子数量
   const mergeableBoxesCount = computed(() => {
     return boxes.value.filter(box => 
       !box.locked && 
@@ -248,6 +255,7 @@
     ).length
   })
   
+  // 存在盒子可以合并
   const hasBoxToMerge = computed(() => {
     return mergeableBoxesCount.value > 0
   })
@@ -261,15 +269,18 @@
     return levelingUpBoxIds.value.includes(boxId)
   }
   
+  // 可见牌数
   const getVisibleCards = (cards: Card[]) => {
     return cards.slice(0, Math.min(cards.length, 5))
   }
   
+  // 每个盒子内最大的牌值
   const getMaxCardValue = (cards: Card[]): number => {
     if (cards.length === 0) return 0
     return Math.max(...cards.map(card => card.value))
   }
   
+  // 盒子内的卡牌是否是同种类型
   const isCardsAllSame = (cards: Card[]): boolean => {
     if (cards.length === 0) return false
     const firstValue = cards[0].value
@@ -316,6 +327,7 @@
     
     await new Promise(resolve => setTimeout(resolve, 300))
     
+    // 已解锁的盒子
     const unlockedBoxes = boxes.value.filter(box => !box.locked)
     
     if (unlockedBoxes.length === 0) {
@@ -332,6 +344,8 @@
       
       // 每个盒子最多发4张牌，且不能超过10张限制
       const availableSpace = 10 - box.cards.length
+
+      // 剩余盒子空间
       if (availableSpace === 0) {
         addLog(`盒子${box.id + 1}已满，无法发牌`, 'warning')
         return box
